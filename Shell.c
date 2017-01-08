@@ -1,6 +1,11 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+
 
 int main() {
 	int state = 1;
@@ -18,6 +23,22 @@ int main() {
 		loops ++;
 	}
 
-	for(int i = 0; i < loops; i++) { printf("%s",array[i]); }
+	//Child-parent process
+
+	pid_t frk = fork();
+
+	if (frk == 0) { 
+		printf("Child");
+		execl("/bin/echo","echo","Excuted echo",NULL);
+		} 
+
+	else if (frk > 0) {
+		printf("Parent ");
+		wait(NULL);
+
+		}
+	
+
+	for(int i = 0; i < loops; i++) { printf("%s ",array[i]); }
 	return 0;
 }
