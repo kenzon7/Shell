@@ -5,23 +5,29 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-
-
-int main() {
+void inptloop() {
 	int state = 1;
 	int loops = 0;
 	char ch[500];
 	char array[21][500];
 
-	//input loop
-
 	while (state == 1) {
 		scanf("%s", ch);
-		strcpy(array[loops],ch);
 		int exit = strcmp(ch,"exit");
-		if (exit == 0) state = 0;
-		loops ++;
+		if (exit == 0) break;
+		if (loops < 21) {
+			strcpy(array[loops],ch);
+			loops ++;
+		}
 	}
+	for(int i = 0; i < loops; i++) { printf("%s ",array[i]); printf("%d \n",i); }	//for testing 
+}
+
+int main() {
+	
+	//input loop
+
+	inptloop();
 
 	//Child-parent process
 
@@ -37,8 +43,5 @@ int main() {
 		wait(NULL);
 
 		}
-	
-
-	for(int i = 0; i < loops; i++) { printf("%s ",array[i]); }
 	return 0;
 }
