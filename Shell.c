@@ -4,44 +4,51 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <stdlib.h>
 
-void inptloop() {
-	int state = 1;
+
+char *array[22];
+
+//input function 
+
+void inptloop(char *a[22]) {
 	int loops = 0;
 	char ch[500];
-	char array[21][500];
-
-	while (state == 1) {
-		scanf("%s", ch);
-		int exit = strcmp(ch,"exit");
-		if (exit == 0) break;
-		if (loops < 21) {
-			strcpy(array[loops],ch);
-			loops ++;
-		}
+	char *tok;
+	fgets(ch, 500, stdin);
+	tok = strtok(ch," ");
+	while ( tok != NULL) {
+		a[loops++] = tok;
+		tok = strtok(NULL," ");
 	}
-	for(int i = 0; i < loops; i++) { printf("%s ",array[i]); printf("%d \n",i); }	//for testing 
+	printf("Input done");
 }
 
 int main() {
-	
-	//input loop
 
-	inptloop();
+	// while (1) {
 
-	//Child-parent process
+		pid_t frk = fork();
 
-	pid_t frk = fork();
+		// inptloop(array);
 
-	if (frk == 0) { 
-		printf("Child");
-		execl("/bin/echo","echo","Excuted echo",NULL);
-		} 
+		printf("My PID:%d", getpid());
 
-	else if (frk > 0) {
-		printf("Parent ");
-		wait(NULL);
+		// int ex = strcmp(array[0],"exit\n");
+		// if (ex == 0)  break;
 
+		// array[0] = "/bin/ls";
+
+		if (frk == 0) { 
+
+			printf("Child PID:%d \n", getpid());
+			sleep(5);
+			// execvp(array[0], array);
+			exit(0);
 		}
+
+		wait(NULL);		
+
+		// }
 	return 0;
 }
