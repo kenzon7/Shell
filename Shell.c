@@ -21,34 +21,31 @@ void inptloop(char *a[22]) {
 		a[loops++] = tok;
 		tok = strtok(NULL," ");
 	}
-	printf("Input done");
 }
 
 int main() {
 
-	// while (1) {
+	while (1) {
 
 		pid_t frk = fork();
 
-		// inptloop(array);
+		inptloop(array);
 
 		printf("My PID:%d", getpid());
 
-		// int ex = strcmp(array[0],"exit\n");
-		// if (ex == 0)  break;
-
-		// array[0] = "/bin/ls";
+		int ex = strcmp(array[0],"exit\n");
+		if (ex == 0)  break;
 
 		if (frk == 0) { 
 
 			printf("Child PID:%d \n", getpid());
-			sleep(5);
-			// execvp(array[0], array);
+			array[0] = "/bin/ls";			
+			execv(array[0], array);
 			exit(0);
 		}
 
 		wait(NULL);		
 
-		// }
+		}
 	return 0;
 }
