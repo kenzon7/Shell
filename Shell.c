@@ -26,11 +26,8 @@ void inptloop(char *a[22]) {
 int main() {
 
 	while (1) {
-
+		
 		pid_t frk = fork();
-
-		inptloop(array);
-
 		printf("My PID:%d", getpid());
 
 		int ex = strcmp(array[0],"exit\n");
