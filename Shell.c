@@ -11,33 +11,41 @@ char *array[22];
 
 //input function 
 
-void inptloop(char *a[22]) {
+void inptloop(char **a) {
 	int loops = 0;
 	char ch[500];
 	char *tok;
 	fgets(ch, 500, stdin);
 	tok = strtok(ch," ");
 	while ( tok != NULL) {
-		a[loops++] = tok;
+		array[loops++] = &tok;
 		tok = strtok(NULL," ");
 	}
+	a[loops++] = NULL;
 }
 
 int main() {
 
 	while (1) {
-		
-		pid_t frk = fork();
-		printf("My PID:%d", getpid());
+
+		//Input loop
+
+		inptloop(array);
+		printf("%s", array[0]);
+
+		//Exit check
 
 		int ex = strcmp(array[0],"exit\n");
-		if (ex == 0)  break;
+		if (ex == 0)  break;	
+		
+		//Exec & fork 
+		
+		pid_t frk = fork();
 
 		if (frk == 0) { 
-
-			printf("Child PID:%d \n", getpid());
-			array[0] = "/bin/ls";			
-			execv(array[0], array);
+			// printf("NOPE!\n");	
+			// printf("%s", array[0]);
+			execvp(array[0], array); 
 			exit(0);
 		}
 
