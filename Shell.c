@@ -13,14 +13,16 @@ char *array[22];
 
 void inptloop(char **a) {
 	int loops = 0;
-	char ch[500];
+	char ch[500];		
 	char *tok;
 	fgets(ch, 500, stdin);
+	ch[strcspn(ch, "\n")] = 0;
 	tok = strtok(ch," ");
 	while ( tok != NULL) {
-		array[loops++] = &tok;
+		a[loops++] = tok;
 		tok = strtok(NULL," ");
 	}
+
 	a[loops++] = NULL;
 }
 
@@ -30,12 +32,11 @@ int main() {
 
 		//Input loop
 
-		inptloop(array);
-		printf("%s", array[0]);
+		inptloop(array);	
 
 		//Exit check
 
-		int ex = strcmp(array[0],"exit\n");
+		int ex = strcmp(array[0],"exit");
 		if (ex == 0)  break;	
 		
 		//Exec & fork 
@@ -43,8 +44,6 @@ int main() {
 		pid_t frk = fork();
 
 		if (frk == 0) { 
-			// printf("NOPE!\n");	
-			// printf("%s", array[0]);
 			execvp(array[0], array); 
 			exit(0);
 		}
