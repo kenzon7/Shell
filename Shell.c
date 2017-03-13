@@ -8,6 +8,10 @@
 
 
 char *array[22];
+char cmd[] = "/bin/ls -i -s > file.txt";
+char *pot1, *pot2;
+
+char *c[] = {"/bin/ls","-i","-s"};
 
 //input function 
 
@@ -28,28 +32,39 @@ void inptloop(char **a) {
 
 int main() {
 
-	while (1) {
+	// while (1) {
+
+		// for(int i = 0; i < 500; i++) printf("%s", &cmd[i]);
+
+		// pot1=strchr(cmd,">> ");
+		pot1 = strstr(cmd, ">>");
+		if (pot1 != NULL) printf("YO");
+  		// while (pot1!=NULL) {
+		// 	  pot1=strchr(pot1+1,'>');
+  		// }
 
 		//Input loop
 
-		inptloop(array);	
+		// inptloop(array);	
 
 		//Exit check
 
-		int ex = strcmp(array[0],"exit");
-		if (ex == 0)  break;	
+		// int ex = strcmp(array[0],"exit");
+		// if (ex == 0)  break;	
 		
 		//Exec & fork 
 		
 		pid_t frk = fork();
 
 		if (frk == 0) { 
-			execvp(array[0], array); 
+			// execvp(c[0], c); 
 			exit(0);
 		}
 
-		wait(NULL);		
+		wait(NULL);	
+		// printf("%s",array[1]);
+		// for(int i = 0; i <22; i++) {  array[i] = 0; }
 
-		}
+		// }
 	return 0;
 }
