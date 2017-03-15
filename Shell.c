@@ -8,7 +8,7 @@
 
 
 char *array[22];
-char raw[] = "/bin/ls -i -s < file.txt";
+char raw[] = "/bin/ls -i -s >> file.txt";
 char *cmd, *file, *tok;
 int loops = 0, mode = 0;
 FILE *fp;
@@ -38,24 +38,24 @@ int main() {
 
 	while (1) {
 
-		if (strstr(raw, ">>") != NULL) { mode = 3; printf(">>\n");}
-		else if (strstr(raw, ">") != NULL) { printf(">\n"); mode = 2;}
-		else if (strstr(raw, "<") != NULL){ mode = 1;  printf("<\n");}
+		if (strstr(raw, ">>") != NULL) mode = 3;
+		else if (strstr(raw, ">") != NULL) mode = 2;
+		else if (strstr(raw, "<") != NULL) mode = 1;
 		else mode = 0;	
 
 		cmd = strtok(raw, ">><");
 		file = strtok(NULL, ">><");
 		cmd[strcspn(cmd, "\n")] = 0;
-		// printf("%s:%s\n", cmd, file);
 
 		switch (mode) {
 			case 3:fp = fopen(file, "a"); break;
 			case 2:fp = fopen(file, "w"); break;
 			case 1:fp = fopen(file, "r"); fgets( raw, 1000, fp ); break;
-			default: fp = NULL;
+			default: fgets(raw, 500, stdin);
 		}
 
 		printf("%s",raw);
+		raw[strcspn(raw, "\n")] = 0;
 		tok = strtok(cmd," ");
 		while ( tok != NULL) {
 			array[loops++] = tok;
