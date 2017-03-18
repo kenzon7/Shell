@@ -5,19 +5,18 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 
-char *array[22];
-char raw[] = "/bin/ls -i -s >> file.txt";
-char *cmd, *file, *tok;
-int loops = 0, mode = 0;
-FILE *fp;
-int pipedes[2];
+char static *array[22];
+char raw[] = "ls < file.txt";
+
 
 
 //input function 
 
-void inptloop(char **a) {
+int inptloop(char **a) {
 	int loops = 0;
 	char ch[500];		
 	char *tok;
@@ -29,75 +28,97 @@ void inptloop(char **a) {
 		tok = strtok(NULL," ");
 	}
 
-	a[loops++] = NULL;
+	// a[++loops] = NULL;
+	return loops-1;
 }
-
-char s[500];
 
 int main() {
 
 	while (1) {
 
-		if (strstr(raw, ">>") != NULL) mode = 3;
-		else if (strstr(raw, ">") != NULL) mode = 2;
-		else if (strstr(raw, "<") != NULL) mode = 1;
-		else mode = 0;	
-
-		cmd = strtok(raw, ">><");
-		file = strtok(NULL, ">><");
-		cmd[strcspn(cmd, "\n")] = 0;
-
-		switch (mode) {
-			case 3:fp = fopen(file, "a"); break;
-			case 2:fp = fopen(file, "w"); break;
-			case 1:fp = fopen(file, "r"); fgets( raw, 1000, fp ); break;
-			default: fgets(raw, 500, stdin);
-		}
-
-		printf("%s",raw);
-		raw[strcspn(raw, "\n")] = 0;
-		tok = strtok(cmd," ");
-		while ( tok != NULL) {
-			array[loops++] = tok;
-			tok = strtok(NULL," ");
-		}
-
-
+		char *cmd, *file1, *file2, *tok;
+		int loops = 0; 
+		int mode1 = 0, mode2=0;
+		int fp1, fp2;
 
 		//Input loop
 
-		// inptloop(array);	
+		loops = inptloop(array);
+
+		// check for symbols
+		for ( int i=0; i < loops; i++ ) {
+			if (strcmp(array[i],">>") == 0) {
+				if (mode1) {
+					mode2 = 3;
+					file2 = array[i+1];
+				}
+				else {
+					mode1 = 3;
+					file1 = array[i+1];
+				}
+			}
+			else if (strcmp(array[i],">") == 0) {
+				if (mode1) {
+					mode2 = 2;
+					file2 = array[i+1];
+				}
+				else {
+					mode1 = 2;
+					file1 = array[i+1];
+				}
+			}
+			else if (strcmp(array[i],"<") == 0) {
+				if (mode1) {
+					mode2 = 1;
+					file2 = array[i+1];
+				}
+				else {
+					mode1 = 1;
+					file1 = array[i+1];
+				}
+			}
+		}
+
+		printf("%d:%d:%d\n", loops, mode1, mode2);
+
+		//remove file names and symbols 
+
+		if (mode2) {
+			array[loops-4] = 0;
+		}
+		else {
+			array[loops-2] = 0;
+		}	
 
 		//Exit check
 
-		int ex = strcmp(array[0],"exit");
-		if (ex == 0)  break;	
+		if (strcmp(array[0],"exit") == 0)  break;	
 		
 		//Exec & fork 
-
-		if (pipe(pipedes) == -1) { perror("pipe"); exit(EXIT_FAILURE);}
 		
 		pid_t frk = fork();
 
 		if (frk == 0) {
-			if (mode > 1) {
-				dup2 (pipedes[1], STDOUT_FILENO);
-    			close(pipedes[0]);
-    			close(pipedes[1]); 
+			switch (mode1) {
+				case 3:
+					fp1 = open(file1, O_RDWR|O_APPEND|O_CREAT,S_IRWXU);  
+					dup2(fp1, 1);
+					break;
+				case 2:
+					fp1 = open(file1, O_RDWR|O_CREAT,S_IRWXU); 
+					dup2(fp1, 1);
+					break;
+				case 1:
+					fp1 = open(file1, O_RDONLY); 
+					dup2(fp1, STDIN_FILENO);
+					break;
 			}
-			execvp(array[0], array); 
+			execvp(array[0], array); 			
 			exit(0);
 		}
 
-		if( mode > 1) {
-			close(pipedes[1]);
-			read(pipedes[0], s, sizeof(s));
-			fputs(s,fp);
-			fclose(fp);
-		}
-
 		wait(NULL);	
-		break;
+		// for(int i=0;i<22;i++) array[i] = 0;
 	}
 	return 0;
 }
